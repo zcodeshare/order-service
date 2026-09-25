@@ -1,0 +1,16 @@
+package com.in2it.cats.orderservice.dto;
+
+import lombok.AllArgsConstructor;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+public class InventoryDTO {
+
+    private String id;
+    private String productId;
+    private Integer quantity;
+    private Integer reservedQuantity;
+}

@@ -1,10 +1,7 @@
 package com.in2it.cats.orderservice.service.impl;
 
-import com.in2it.cats.orderservice.client.ProductClient;
-import com.in2it.cats.orderservice.dto.OrderRequestDTO;
-import com.in2it.cats.orderservice.dto.OrderResponseDTO;
-import com.in2it.cats.orderservice.dto.ProductDTO;
-import com.in2it.cats.orderservice.dto.ProductResponseDTO;
+import com.in2it.cats.orderservice.client.*;
+import com.in2it.cats.orderservice.dto.*;
 import com.in2it.cats.orderservice.entity.Order;
 import com.in2it.cats.orderservice.exception.OrderNotFoundException;
 import com.in2it.cats.orderservice.repository.OrderRepository;
@@ -21,14 +18,32 @@ public class OrderServiceImpl implements OrderService {
 
     private final OrderRepository orderRepository;
     private final ProductClient productClient;
+    private final UserClient userClient;
+    private final InventoryClient inventoryClient;
+    private final PaymentClient paymentClient;
+    private final NotificationClient notificationClient;
 
     @Override
     public OrderResponseDTO createOrder(OrderRequestDTO request) {
+
+        userClient.getUserById(request.getUserId());
 
         ProductResponseDTO productResponse =
                 productClient.getProductById(request.getProductId());
 
         ProductDTO product = productResponse.getData();
+
+        InventoryResponseDTO inventoryResponse =
+                inventoryClient.getInventoryByProductId(request.getProductId());
+
+        InventoryDTO inventory = inventoryResponse.getData();
+
+        int availableStock =
+                inventory.getQuantity() - inventory.getReservedQuantity();
+
+        if (availableStock < request.getQuantity()) {
+            throw new RuntimeException("Insufficient product stock");
+        }
 
         BigDecimal price = product.getPrice();
 
@@ -46,6 +61,26 @@ public class OrderServiceImpl implements OrderService {
 
         Order savedOrder = orderRepository.save(order);
 
+        PaymentRequestDTO paymentRequest = new PaymentRequestDTO(
+                savedOrder.getId(),
+                savedOrder.getUserId(),
+                savedOrder.getTotalAmount(),
+                request.getPaymentMethod()
+        );
+
+        paymentClient.createPayment(paymentRequest);
+
+        NotificationRequestDTO notificationRequest =
+                new NotificationRequestDTO(
+                        savedOrder.getUserId(),
+                        savedOrder.getId(),
+                        "ORDER_CREATED",
+                        "Your order has been created successfully",
+                        "EMAIL"
+                );
+
+        notificationClient.createNotification(notificationRequest);
+
         return OrderResponseDTO.builder()
                 .id(savedOrder.getId())
                 .userId(savedOrder.getUserId())
@@ -56,7 +91,6 @@ public class OrderServiceImpl implements OrderService {
                 .status(savedOrder.getStatus())
                 .build();
     }
-
     @Override
     public OrderResponseDTO getOrderById(String id) {
 

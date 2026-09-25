@@ -23,4 +23,7 @@ public class OrderRequestDTO {
     @NotNull(message = "Quantity is required")
     @Min(value = 1, message = "Quantity must be at least 1")
     private Integer quantity;
+
+    @NotBlank(message = "Payment method is required")
+    private String paymentMethod;
 }

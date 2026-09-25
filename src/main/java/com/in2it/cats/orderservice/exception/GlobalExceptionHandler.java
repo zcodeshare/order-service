@@ -85,21 +85,18 @@ public class GlobalExceptionHandler {
     }
 
     @ExceptionHandler(FeignException.NotFound.class)
-    public ResponseEntity<ResponseDTO> handleProductNotFound(
+    public ResponseEntity<ResponseDTO> handleFeignNotFound(
             FeignException.NotFound exception) {
 
         CustomErrorResponseDTO errorInfo =
                 new CustomErrorResponseDTO(
-                        "PRODUCT_NOT_FOUND",
-                        "Product not found",
-                        "The requested product does not exist"
+                        "RESOURCE_NOT_FOUND",
+                        "User or product not found",
+                        "The requested user or product does not exist"
                 );
-
-        ResponseDTO response =
-                new ResponseDTO(false, null, errorInfo);
 
         return ResponseEntity
                 .status(HttpStatus.NOT_FOUND)
-                .body(response);
+                .body(new ResponseDTO(false, null, errorInfo));
     }
 }

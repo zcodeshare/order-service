@@ -17,86 +17,60 @@ import java.util.Map;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(OrderNotFoundException.class)
-    public ResponseEntity<ResponseDTO> handleOrderNotFound(
-            OrderNotFoundException exception) {
+    public ResponseEntity<ResponseDTO> handleOrderNotFound(OrderNotFoundException exception) {
 
-        CustomErrorResponseDTO errorInfo =
-                new CustomErrorResponseDTO(
+        CustomErrorResponseDTO errorInfo = new CustomErrorResponseDTO(
                         "ORDER_NOT_FOUND",
-                        exception.getMessage(),
-                        "No order exists with the given id: " + exception.getMessage()
+                        OrderConstants.ORDER_NOT_FOUND,
+                        exception.getMessage()
                 );
-
-        ResponseDTO response =
-                new ResponseDTO(false, null, errorInfo);
-
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(response);
+        ResponseDTO response = new ResponseDTO(false, null, errorInfo);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<ResponseDTO> handleValidation(
-            MethodArgumentNotValidException exception) {
+    public ResponseEntity<ResponseDTO> handleValidation(MethodArgumentNotValidException exception) {
 
         Map<String, String> errors = new HashMap<>();
 
         exception.getBindingResult()
                 .getFieldErrors()
-                .forEach(error ->
-                        errors.put(
-                                error.getField(),
-                                error.getDefaultMessage()
-                        )
-                );
+                .forEach(error -> errors.put(error.getField(), error.getDefaultMessage()));
 
-        CustomErrorResponseDTO errorInfo =
-                new CustomErrorResponseDTO(
+        CustomErrorResponseDTO errorInfo = new CustomErrorResponseDTO(
                         "VALIDATION_ERROR",
                         OrderConstants.VALIDATION_ERROR,
                         errors.toString()
                 );
 
-        ResponseDTO response =
-                new ResponseDTO(false, null, errorInfo);
+        ResponseDTO response = new ResponseDTO(false, null, errorInfo);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+    }
 
-        return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
-                .body(response);
+    @ExceptionHandler(FeignException.NotFound.class)
+    public ResponseEntity<ResponseDTO> handleFeignNotFound(FeignException.NotFound exception) {
+
+        CustomErrorResponseDTO errorInfo = new CustomErrorResponseDTO(
+                        "RESOURCE_NOT_FOUND",
+                        "User or product not found",
+                        "The requested resource does not exist"
+                );
+
+        ResponseDTO response = new ResponseDTO(false, null, errorInfo);
+
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
     }
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ResponseDTO> handleGenericException(
-            Exception exception) {
+    public ResponseEntity<ResponseDTO> handleGenericException(Exception exception) {
 
-        CustomErrorResponseDTO errorInfo =
-                new CustomErrorResponseDTO(
+        CustomErrorResponseDTO errorInfo = new CustomErrorResponseDTO(
                         "INTERNAL_SERVER_ERROR",
                         OrderConstants.INTERNAL_SERVER_ERROR,
                         exception.getMessage()
                 );
 
-        ResponseDTO response =
-                new ResponseDTO(false, null, errorInfo);
-
-        return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(response);
-    }
-
-    @ExceptionHandler(FeignException.NotFound.class)
-    public ResponseEntity<ResponseDTO> handleFeignNotFound(
-            FeignException.NotFound exception) {
-
-        CustomErrorResponseDTO errorInfo =
-                new CustomErrorResponseDTO(
-                        "RESOURCE_NOT_FOUND",
-                        "User or product not found",
-                        "The requested user or product does not exist"
-                );
-
-        return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body(new ResponseDTO(false, null, errorInfo));
+        ResponseDTO response = new ResponseDTO(false, null, errorInfo);
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 }

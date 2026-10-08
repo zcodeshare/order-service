@@ -22,31 +22,19 @@ public class OrderController {
 
     @Operation(summary = "${order.create}")
     @PostMapping("/create")
-    public ResponseEntity<ResponseDTO> createOrder(
-            @Valid @RequestBody OrderRequestDTO request) {
+    public ResponseEntity<ResponseDTO> createOrder(@Valid @RequestBody OrderRequestDTO request) {
 
-        OrderResponseDTO data =
-                orderService.createOrder(request);
-
-        ResponseDTO response =
-                new ResponseDTO(true, data, null);
-
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .body(response);
+        OrderResponseDTO data = orderService.createOrder(request);
+        ResponseDTO response = new ResponseDTO(true, data, null);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @Operation(summary = "${order.getById}")
     @GetMapping("/{id}")
-    public ResponseEntity<ResponseDTO> getOrderById(
-            @PathVariable String id) {
+    public ResponseEntity<ResponseDTO> getOrderById(@PathVariable String id) {
 
-        OrderResponseDTO data =
-                orderService.getOrderById(id);
-
-        ResponseDTO response =
-                new ResponseDTO(true, data, null);
-
+        OrderResponseDTO data = orderService.getOrderById(id);
+        ResponseDTO response = new ResponseDTO(true, data, null);
         return ResponseEntity.ok(response);
     }
 
@@ -54,40 +42,26 @@ public class OrderController {
     @GetMapping("/getAll")
     public ResponseEntity<ResponseDTO> getAllOrders() {
 
-        List<OrderResponseDTO> data =
-                orderService.getAllOrders();
-
-        ResponseDTO response =
-                new ResponseDTO(true, data, null);
-
+        List<OrderResponseDTO> data = orderService.getAllOrders();
+        ResponseDTO response = new ResponseDTO(true, data, null);
         return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "${order.update}")
     @PutMapping("/update/{id}")
-    public ResponseEntity<ResponseDTO> updateOrder(
-            @PathVariable String id,
-            @Valid @RequestBody OrderRequestDTO request) {
+    public ResponseEntity<ResponseDTO> updateOrder(@PathVariable String id, @Valid @RequestBody OrderRequestDTO request) {
 
-        OrderResponseDTO data =
-                orderService.updateOrder(id, request);
-
-        ResponseDTO response =
-                new ResponseDTO(true, data, null);
-
+        OrderResponseDTO data = orderService.updateOrder(id, request);
+        ResponseDTO response = new ResponseDTO(true, data, null);
         return ResponseEntity.ok(response);
     }
 
     @Operation(summary = "${order.delete}")
     @DeleteMapping("/delete/{id}")
-    public ResponseEntity<ResponseDTO> deleteOrder(
-            @PathVariable String id) {
+    public ResponseEntity<ResponseDTO> deleteOrder(@PathVariable String id) {
 
         orderService.deleteOrder(id);
-
-        ResponseDTO response =
-                new ResponseDTO(true, null, null);
-
+        ResponseDTO response = new ResponseDTO(true, null, null);
         return ResponseEntity.ok(response);
     }
 }
